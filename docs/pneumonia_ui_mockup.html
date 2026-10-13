@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Pneumonia Detection System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #3b6fc9, #2c3e50);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .upload-section, .results-section, .history-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            flex: 1;
+            min-width: 300px;
+        }
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .dropzone {
+            border: 2px dashed #3b6fc9;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+        .dropzone:hover, .dropzone.active {
+            background-color: #e8f0fe;
+            border-color: #1a56cc;
+        }
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 4px;
+            display: none;
+        }
+        button {
+            background: #3b6fc9;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2c5aa0;
+        }
+        button:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+        }
+        .features-container {
+            margin-top: 15px;
+        }
+        .result-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f1f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b6fc9;
+            margin-bottom: 15px;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-probability {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .feature-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .analysis-charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .chart-container {
+            flex: 1;
+            min-width: 250px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-pneumonia {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+        .badge-normal {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b6fc9;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: white;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .features-toggle {
+            margin-top: 10px;
+            cursor: pointer;
+            color: #3b6fc9;
+            display: flex;
+            align-items: center;
+        }
+        .feature-details {
+            display: none;
+            margin-top: 10px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            height: 10px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #4caf50, #ffc107, #f44336);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="background:#fff4e5;border-left:4px solid #e08a00;padding:12px 16px;margin:0 0 16px;font-size:14px;color:#3a2a00;border-radius:4px"><strong>Interface mockup, not a real detector.</strong> This page does not run a model. The prediction, confidence and feature values below are random or hardcoded placeholders. Do not use it for any medical decision.</div>
+            <h1>Hybrid Pneumonia Detection System</h1>
+            <p>Upload a chest X-ray image for pneumonia detection using our hybrid CNN and texture feature model</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>Upload X-ray Image</h2>
+                <div class="dropzone" id="dropzone">
+                    <p><i>Drag and drop your chest X-ray image here, or click to browse</i></p>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="preview-container">
+                    <img id="imagePreview" src="" alt="Preview">
+                </div>
+                <button id="analyzeBtn" >Analyze Image</button>
+                <div class="loader" id="loader"></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="results">Results</div>
+                    <div class="tab" data-tab="features">Features</div>
+                    <div class="tab" data-tab="visualization">Visualization</div>
+                </div>
+                
+                <div class="tab-content active" id="results-tab">
+                    <h2>Detection Results</h2>
+                    <div id="resultContainer">
+                        <p>No image analyzed yet. Please upload an image and click "Analyze Image".</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="features-tab">
+                    <h2>Extracted Features</h2>
+                    <div id="featuresContainer">
+                        <p>Features will appear here after image analysis.</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="visualization-tab">
+                    <h2>Image Analysis Visualization</h2>
+                    <div class="analysis-charts">
+                        <div class="chart-container">
+                            <h3>Texture Feature Importance</h3>
+                            <canvas id="featureChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Heat Map Visualization</h3>
+                            <div id="heatmapContainer">
+                                <p>Heat map will be generated after analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h2>Analysis History</h2>
+            <ul class="history-list" id="historyList">
+                <li class="history-item">
+                    <span>No past analyses</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loader = document.getElementById('loader');
+        const resultContainer = document.getElementById('resultContainer');
+        const featuresContainer = document.getElementById('featuresContainer');
+        const historyList = document.getElementById('historyList');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Sample data for demonstration
+        const sampleFeatures = {
+            texture: {
+                contrast: 0.78,
+                correlation: 0.42
+            },
+            wavelet: {
+                mean_cA: 45.3,
+                std_cA: 23.1,
+                mean_cH: 5.6,
+                std_cH: 12.8,
+                mean_cV: 4.9,
+                std_cV: 11.3,
+                mean_cD: 3.2,
+                std_cD: 9.7
+            },
+            hog: {
+                cells: 64,
+                average: 0.35
+            }
+        };
+        
+        // Event Listeners
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('active');
+        });
+        
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('active');
+        });
+        
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('active');
+            
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFile(fileInput.files[0]);
+            }
+        });
+        
+        analyzeBtn.addEventListener('click', () => {
+            simulateAnalysis();
+        });
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
+        // Handle file upload
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Simulate analysis
+        function simulateAnalysis() {
+            // Show loading state
+            analyzeBtn.disabled = true;
+            loader.style.display = 'block';
+            progressBar.style.width = '0%';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        displayResults();
+                        loader.style.display = 'none';
+                        analyzeBtn.disabled = false;
+                    }, 500);
+                }
+            }, 100);
+        }
+        
+        // Display analysis results
+        function displayResults() {
+            // PLACEHOLDER: random output for UI demonstration only, no model is run
+            const probability = Math.random();
+            const isPneumonia = probability > 0.5;
+            const confidenceLevel = (isPneumonia ? probability : 1 - probability) * 100;
+            
+            // Create result card
+            resultContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3>Placeholder output: ${isPneumonia ? 'Pneumonia Detected' : 'Normal'}</h3>
+                        <span class="badge ${isPneumonia ? 'badge-pneumonia' : 'badge-normal'}">
+                            ${isPneumonia ? 'PNEUMONIA' : 'NORMAL'}
+                        </span>
+                    </div>
+                    <div>
+                        <p>Confidence: <strong>${confidenceLevel.toFixed(2)}%</strong></p>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${confidenceLevel}%; background: ${confidenceLevel > 80 ? '#f44336' : confidenceLevel > 50 ? '#ffc107' : '#4caf50'}"></div>
+                        </div>
+                    </div>
+                    <div class="features-toggle" onclick="toggleFeatureDetails(this)">
+                        Show model reasoning
+                    </div>
+                    <div class="feature-details">
+                        <p>The model detected ${isPneumonia ? 'abnormal texture patterns and opacity characteristics' : 'normal lung patterns with clear fields'} in the image.</p>
+                        <p>Key factors in this prediction:</p>
+                        <ul>
+                            <li>Texture contrast: ${sampleFeatures.texture.contrast.toFixed(2)}</li>
+                            <li>Wavelet coefficient variance: ${sampleFeatures.wavelet.std_cA.toFixed(2)}</li>
+                            <li>HOG pattern consistency: ${(sampleFeatures.hog.average * 100).toFixed(2)}%</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            // Display features
+            featuresContainer.innerHTML = `
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <h4>Texture Features</h4>
+                        <p>Contrast: ${sampleFeatures.texture.contrast.toFixed(2)}</p>
+                        <p>Correlation: ${sampleFeatures.texture.correlation.toFixed(2)}</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Wavelet Features</h4>
+                        <p>Mean cA: ${sampleFeatures.wavelet.mean_cA.toFixed(2)}</p>
+                        <p>Std cA: ${sampleFeatures.wavelet.std_cA.toFixed(2)}</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>HOG Features</h4>
+                        <p>Cell count: ${sampleFeatures.hog.cells}</p>
+                        <p>Average: ${sampleFeatures.hog.average.toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add to history
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const historyItem = document.createElement('li');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span>${timeString}</span>
+                <span class="badge ${isPneumonia ? 'badge-pneumonia' : 'badge-normal'}">
+                    ${isPneumonia ? 'PNEUMONIA' : 'NORMAL'}
+                </span>
+            `;
+            if (historyList.querySelector('li:first-child').textContent.includes('No past analyses')) {
+                historyList.innerHTML = '';
+            }
+            historyList.prepend(historyItem);
+            
+            // Create demo charts with a mock implementation
+            setTimeout(createDemoCharts, 100);
+        }
+        
+        // Create demo charts
+        function createDemoCharts() {
+            // This is just a mock function
+            // In a real implementation, you would use a charting library like Chart.js
+            document.getElementById('heatmapContainer').innerHTML = `
+                <img src="/api/placeholder/400/300" alt="Sample heatmap visualization" style="width: 100%; height: auto;">
+                <p>Sample heatmap visualization (placeholder)</p>
+            `;
+        }
+        
+        // Toggle feature details
+        function toggleFeatureDetails(el) {
+            const details = el.nextElementSibling;
+            if (details.style.display === 'block') {
+                details.style.display = 'none';
+                el.textContent = 'Show model reasoning';
+            } else {
+                details.style.display = 'block';
+                el.textContent = 'Hide model reasoning';
+            }
+        }
+        
+        // Make the toggle function globally available
+        window.toggleFeatureDetails = toggleFeatureDetails;
+    </script>
+</body>
+</html>
