@@ -1,0 +1,10 @@
+__pycache__/
+.ipynb_checkpoints/
+chest_xray/
+data/
+features/
+*.npz
+*.pt
+*.pth
+*.joblib
+.env
