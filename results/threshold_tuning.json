@@ -1,0 +1,30 @@
+{
+  "test_roc_auc": 0.9010190664036818,
+  "threshold_chosen_on": "train out-of-fold predictions",
+  "default_0.5": {
+    "threshold": 0.5,
+    "recall": 0.9615384615384616,
+    "specificity": 0.44017094017094016,
+    "balanced_accuracy": 0.7008547008547008,
+    "f1": 0.8370535714285714,
+    "confusion_matrix": {
+      "tn": 103,
+      "fp": 131,
+      "fn": 15,
+      "tp": 375
+    }
+  },
+  "tuned": {
+    "threshold": 0.7499999999999999,
+    "recall": 0.9051282051282051,
+    "specificity": 0.6410256410256411,
+    "balanced_accuracy": 0.7730769230769231,
+    "f1": 0.8536880290205562,
+    "confusion_matrix": {
+      "tn": 150,
+      "fp": 84,
+      "fn": 37,
+      "tp": 353
+    }
+  }
+}
