@@ -4,3 +4,5 @@ opencv-python
 gudhi
 joblib
 tqdm
+matplotlib
+pytest
