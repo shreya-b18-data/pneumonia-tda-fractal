@@ -1,0 +1,32 @@
+{
+  "topology H0 only": {
+    "n_features": 44,
+    "cv_auc": 0.960509247686212,
+    "test_auc": 0.8846537365768136,
+    "test_recall": 0.9307692307692308
+  },
+  "topology H1 only": {
+    "n_features": 44,
+    "cv_auc": 0.948832377370268,
+    "test_auc": 0.8467346044269121,
+    "test_recall": 0.9333333333333333
+  },
+  "topology (H0+H1)": {
+    "n_features": 88,
+    "cv_auc": 0.9686020179693088,
+    "test_auc": 0.898170063554679,
+    "test_recall": 0.9487179487179487
+  },
+  "fractal only": {
+    "n_features": 5,
+    "cv_auc": 0.9125801597616782,
+    "test_auc": 0.8054788516326978,
+    "test_recall": 0.9025641025641026
+  },
+  "topology + fractal": {
+    "n_features": 93,
+    "cv_auc": 0.9700907488915357,
+    "test_auc": 0.9010190664036818,
+    "test_recall": 0.9615384615384616
+  }
+}
